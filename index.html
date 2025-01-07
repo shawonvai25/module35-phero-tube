@@ -13,12 +13,12 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <!-- header sectio1 start -->
     <header>
-      <!-- navbar starts -->
       <nav
-        class="w-11/12 mx-auto flex justify-between py-3 items-center border-b"
+        class="w-11/12 mx-auto flex py-3 justify-between items-center border-b"
       >
-        <div class="logo w-[100px] border-2">
+        <div class="logo w-[100px]">
           <img src="./assets/Logo.png" alt="" />
         </div>
         <div class="search">
@@ -39,14 +39,20 @@
           </label>
         </div>
         <div class="sort">
-          <button class="bg-gray-300 p-2 rounded-md font-bold">Sort</button>
+          <button class="btn">Sort</button>
         </div>
       </nav>
     </header>
+    <!-- header section end -->
+    <nav id="categories" class="py-3 flex gap-5 justify-center"></nav>
+    <!-- script -->
 
-    <nav id="categories"></nav>
-
-    <!-- scripts  -->
-    <script src="./scripts/video.js"></script>
+    <main>
+      <section
+        id="videos"
+        class="w-11/12 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 py-10"
+      ></section>
+    </main>
+    <script src="./script/video.js"></script>
   </body>
 </html>

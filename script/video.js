@@ -2,6 +2,26 @@
 
 // 1. Fetch , load and show categories on HTML
 
+function getTimeString(time){
+
+  const hour = parseInt(time/3600);
+  let remainingSecond = time % 3600;
+  const minute = parseInt(remainingSecond/60);
+  const second = remainingSecond % 60;
+
+   return `${hour} hour ${minute} minute ${second} second`;
+}
+
+console.log(getTimeString(9644));
+
+const removeActiveClass = () => {
+   const buttons = document.getElementsByClassName("category-btn");
+   console.log(buttons);
+   for(let btn of buttons){
+     btn.classList.remove("active");
+   }
+}
+
 // create loadCategories
 const loadCategories = () => {
 
@@ -12,13 +32,54 @@ const loadCategories = () => {
   .catch((error) => console.log(error));
 };
 
-const loadVideos = () => {
+const loadVideos = (searchText) => {
   // fetch the data
-  fetch("https://openapi.programming-hero.com/api/phero-tube/videos")
+  fetch(`https://openapi.programming-hero.com/api/phero-tube/videos?title=${searchText}`)
   .then((res) => res.json())
   .then((data) => displayVideos(data.videos) )
   .catch((error) => console.log(error))
 }
+
+const loadCategoryVideos = (id) =>{
+  // alert(id);
+
+  fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
+  .then((res) => res.json())
+  .then((data) => {
+    // shobaike active class remove korao
+    removeActiveClass();
+    // id er class ke active korao
+    const activeBtn = document.getElementById(`btn-${id}`);
+    console.log(activeBtn);
+    activeBtn.classList.add("active");
+    displayVideos(data.category);
+  })
+  .catch((error) => console.log(error))
+
+} 
+
+const loadDetails = async (videoId)=>{
+   console.log(videoId);
+   const uri = `https://openapi.programming-hero.com/api/phero-tube/video/${videoId}`;
+   const res = await fetch(uri);
+   const data = await res.json();
+   console.log(data);
+   displayDetails(data.video);
+}
+
+const displayDetails = (video)=>{
+   console.log(video);
+   const detailsContainer = document.getElementById("modal-content");
+
+  detailsContainer.innerHTML = `
+  <img src=${video.thumbnail}/>
+  `
+
+// way- 1
+//  document.getElementById("showModalData").click();
+// way- 2
+ document.getElementById("customModal").showModal();
+};
 
 // const cardDemo = {
 //   "category_id": "1001",
@@ -42,8 +103,24 @@ const loadVideos = () => {
 
 const displayVideos = (videos) => {
    const videoContainer = document.getElementById('videos');
+   videoContainer.innerHTML = "";
+
+  if(videos.length == 0){
+     videoContainer.classList.remove("grid");
+     videoContainer.innerHTML = `
+     <div class="min-h-[300px] w-full flex flex-col gap-5 justify-center items-center ">
+     <img src="../assets/Icon.png" />
+     <h2 class="text-center text-xl  font-bold text-red-400" >No Content Here in this Category</h2>
+     </div>
+     `;
+     return;
+  }
+  else{
+    videoContainer.classList.add("grid");
+  }
+
   videos.forEach(video => {
-    console.log(video)
+    // console.log(video)
 
     const card = document.createElement("div");
     card.classList = "card card-compact"
@@ -55,7 +132,7 @@ const displayVideos = (videos) => {
       alt="Shoes" />
 
       ${
-        video.others.posted_date?.length == 0 ? "" : `    <span class="absolute text-white bg-black right-2 bottom-2 rounded p-1">${video.others.posted_date}</span>`
+        video.others.posted_date?.length == 0 ? "" : ` <span class="absolute text-white bg-black right-2 bottom-2 rounded p-1">${getTimeString(video.others.posted_date)}</span>`
       }
   
   </figure>
@@ -72,7 +149,7 @@ const displayVideos = (videos) => {
 
    </div>
    
-   <p></p>
+   <p> <button onclick="loadDetails('${video.video_id}')" class="btn btn-sm btn-error">details</button>  </p>
    </div>
   </div>
   `;
@@ -93,15 +170,22 @@ const displayCategories = (categories) => {
 
       // create button
       
-    const button = document.createElement("button");
-    button.classList = "btn";
-    button.innerText = item.category;
-
+    const buttonContainer = document.createElement("div");
+    buttonContainer.innerHTML = `
+    
+    <button class="btn category-btn" id="btn-${item.category_id}"  onclick="loadCategoryVideos(${item.category_id})">
+    ${item.category}
+    </button>
+    `
+   
     // add button to category container
-    categoryContainer.append(button);
+    categoryContainer.append(buttonContainer);
 
     });
  };
 
+ document.getElementById("search-input").addEventListener("keyup", (e)=>{
+    loadVideos(e.target.value);
+ });
  loadCategories();
  loadVideos();
